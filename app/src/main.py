@@ -50,12 +50,16 @@ while True:
     elif len(word) == 0 and current_state in final_states:
         break
 
-# word: list = [item for item in graph.splitlines()[-1].split(":")
-#               [1].strip()]
+word: list = [item for item in graph.splitlines()[-1].split(":")
+              [1].strip()]
 
 
 def build_animation():
-    graph = pydot.Dot('my_graph', graph_type='digraph')
+    graph = pydot.Dot('my_graph', graph_type='digraph', size='4, 5'
+                      )
+
+    graph.add_node(pydot.Node(f'Passo', shape='square',
+                              label=f'Passo ----- Le: -----'))
 
     for transition in transitions:
         graph.add_node(pydot.Node(str(transition.split(
@@ -76,12 +80,20 @@ def build_animation():
         if i == 0:
             graph.add_node(pydot.Node(
                 str(states_to_consume_the_word[i]), style='filled', color="lightblue"))
+
+            graph.add_node(pydot.Node(f'Passo', shape='square',
+                                      label=f'Passo {i} Le: {word[i]}'))
+
             graph.write_png(f'app/assets/graph_imgs/output{i}.jpg')
         else:
             graph.add_node(pydot.Node(
                 str(states_to_consume_the_word[i-1]), style="bold", color="black"))
             graph.add_node(pydot.Node(
                 str(states_to_consume_the_word[i]), style='filled', color="lightblue"))
+
+            graph.add_node(pydot.Node(f'Passo', shape='square',
+                                      label=f'Passo {i} Le: {word[i]}'))
+
             graph.write_png(f'app/assets/graph_imgs/output{i}.jpg')
 
     frames = []
@@ -94,7 +106,7 @@ def build_animation():
     frames[0].save('app/assets/graph_imgs/automaton.gif', format='GIF',
                    append_images=frames[1:],
                    save_all=True,
-                   duration=700, loop=0)
+                   duration=1500, loop=0)
 
 
 build_animation()
