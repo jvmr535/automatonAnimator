@@ -1,0 +1,29 @@
+# graphs = pydot.graph_from_dot_file("app/assets/dot_demos/graph_demo.dot")
+
+dot_string = """digraph automaton {
+  size ="4, 5";
+  node [shape = circle];
+  0 [ style = filled, color=lightgrey ];
+  2 [ shape = doublecircle ];
+  0 -> 2 [ label = "a " ];
+  1 -> 2 [ label = "a " ];
+  0 -> 1 [ label = "other " ];
+  1 -> 1 [ label = "other " ];
+  2 -> 2 [ label = "a " ];
+  2 -> 1 [ label = "other " ];
+  "Machine: a" [ shape = plaintext ];
+}"""
+
+graphs = pydot.graph_from_dot_data(dot_string)
+
+# print(graphs[0])
+
+# states = [f'{item.split(" ")[0]} -> {item.split(" ")[3]} [label="{item.split(" ")[1]}"];' for item in states]
+
+# current_state: str = states[]
+# while word:
+#   for state in states:
+#     for initial in initial_states:
+#       if initial == state.split(" ")[0] and word[0] == state.split(" ")[1]:
+#         del word[-1]
+#         current_state = state

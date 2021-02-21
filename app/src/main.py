@@ -55,11 +55,11 @@ word: list = [item for item in graph.splitlines()[-1].split(":")
 
 
 def build_animation():
-    graph = pydot.Dot('my_graph', graph_type='digraph', size='4, 5'
-                      )
+    graph = pydot.Dot('my_graph', graph_type='digraph')
 
     graph.add_node(pydot.Node(f'Passo', shape='square',
-                              label=f'Passo ----- Le: -----'))
+                              label=f'Passo - \n Le: -'))
+    graph.write_dot('output_graphviz.dot')
 
     for transition in transitions:
         graph.add_node(pydot.Node(str(transition.split(
@@ -82,9 +82,10 @@ def build_animation():
                 str(states_to_consume_the_word[i]), style='filled', color="lightblue"))
 
             graph.add_node(pydot.Node(f'Passo', shape='square',
-                                      label=f'Passo {i} Le: {word[i]}'))
+                                      label=f'Passo {i+1} \n Le: {word[i]}'))
 
             graph.write_png(f'app/assets/graph_imgs/output{i}.jpg')
+            graph.write_dot(f'app/assets/graph_imgs/output_graphviz{i}.dot')
         else:
             graph.add_node(pydot.Node(
                 str(states_to_consume_the_word[i-1]), style="bold", color="black"))
@@ -92,9 +93,10 @@ def build_animation():
                 str(states_to_consume_the_word[i]), style='filled', color="lightblue"))
 
             graph.add_node(pydot.Node(f'Passo', shape='square',
-                                      label=f'Passo {i} Le: {word[i]}'))
+                                      label=f'Passo {i+1} \n Le: {word[i]}'))
 
             graph.write_png(f'app/assets/graph_imgs/output{i}.jpg')
+            graph.write_dot(f'app/assets/graph_imgs/output_graphviz{i}.dot')
 
     frames = []
 

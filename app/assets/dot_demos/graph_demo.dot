@@ -14,5 +14,4 @@ digraph automaton {
   s1 [ style = filled, color=lightgrey ];
   s3 [ shape = doublecircle ];
   s4 [ shape = doublecircle ];
-  "Machine: a" [ shape = plaintext ];
 }
