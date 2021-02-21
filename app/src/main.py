@@ -1,4 +1,6 @@
 import pydot
+import glob
+from PIL import Image
 
 graph = open("app/assets/graphs/graph_notation.txt", "r").read()
 
@@ -48,17 +50,18 @@ while True:
     elif len(word) == 0 and current_state in final_states:
         break
 
-print(states_to_consume_the_word)
+# word: list = [item for item in graph.splitlines()[-1].split(":")
+#               [1].strip()]
 
 
-def build_graph():
+def build_animation():
     graph = pydot.Dot('my_graph', graph_type='digraph')
 
     for transition in transitions:
         graph.add_node(pydot.Node(str(transition.split(
-            " ")[0]), shape='circle', label=str(transition.split(" ")[0])))
+            " ")[0]), style='bold', shape='circle', label=str(transition.split(" ")[0])))
         graph.add_node(pydot.Node(str(transition.split(
-            " ")[3]), shape='circle', label=str(transition.split(" ")[3])))
+            " ")[3]), style='bold', shape='circle', label=str(transition.split(" ")[3])))
         graph.add_edge(pydot.Edge(transition.split(" ")[0], transition.split(" ")[
                        3], label=transition.split(" ")[1]))
 
@@ -67,26 +70,31 @@ def build_graph():
     for final in final_states:
         graph.add_node(pydot.Node(str(final), shape='doublecircle'))
 
-    graph.write_png('output.jpg')
+    graph.write_png('app/assets/graph_imgs/output.jpg')
+
+    for i in range(len(states_to_consume_the_word)):
+        if i == 0:
+            graph.add_node(pydot.Node(
+                str(states_to_consume_the_word[i]), style='filled', color="lightblue"))
+            graph.write_png(f'app/assets/graph_imgs/output{i}.jpg')
+        else:
+            graph.add_node(pydot.Node(
+                str(states_to_consume_the_word[i-1]), style="bold", color="black"))
+            graph.add_node(pydot.Node(
+                str(states_to_consume_the_word[i]), style='filled', color="lightblue"))
+            graph.write_png(f'app/assets/graph_imgs/output{i}.jpg')
+
+    frames = []
+
+    imgs = glob.glob("app/assets/graph_imgs/*.jpg")
+    for i in imgs:
+        new_frame = Image.open(i)
+        frames.append(new_frame)
+
+    frames[0].save('app/assets/graph_imgs/automaton.gif', format='GIF',
+                   append_images=frames[1:],
+                   save_all=True,
+                   duration=700, loop=0)
 
 
-build_graph()
-
-# for initial in initial_states:
-#     graph.add_node(pydot.Node(initial, shape='circle', label=initial,
-#                               color='lightgrey', style='filled'))
-
-# Add nodes
-# my_node = pydot.Node('a', shape='circle', label='Foo',
-#                      color='red', style='filled')
-# graph.add_node(my_node)
-# # Or, without using an intermediate variable:
-# graph.add_node(pydot.Node('b', shape='circle'))
-
-# # Add edges
-# my_edge = pydot.Edge('a', 'b', color='blue')
-# graph.add_edge(my_edge)
-# # Or, without using an intermediate variable:
-# graph.add_edge(pydot.Edge('b', 'c', color='blue'))
-
-#
+build_animation()
