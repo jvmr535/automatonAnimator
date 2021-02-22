@@ -3,53 +3,68 @@ import glob
 import pydot
 from PIL import Image
 
-from Node import Node
+from State import State
 from Transition import Transition
 
-graph = open("app/assets/graphs/graph_notation.txt", "r").read()
+graph_model = open("app/assets/graphs/graph_notation.txt", "r").read()
 
 
 initial_and_final_states: list = [item.strip()
-                                  for item in graph.splitlines()[0].split(";")]
-initial_states: list = [Node(item)
+                                  for item in graph_model.splitlines()[0].split(";")]
+initial_states: list = [State(item)
                         for item in initial_and_final_states[0].split(" ")]
-final_states: list = [Node(item)
+final_states: list = [State(item)
                       for item in initial_and_final_states[1].split(" ")]
-transitions: list = [item for item in graph.splitlines()[1:]]
+transitions: list = [item for item in graph_model.splitlines()[1:]]
 del transitions[-1]
 
 transitions = [Transition(
-    item.split(" ")[0],
-    item.split(" ")[3],
+    State(item.split(" ")[0]),
+    State(item.split(" ")[3]),
     item.split(" ")[1])
     for item in transitions]
 
 
-word: list = [item for item in graph.splitlines()[-1].split(":")[1].strip()]
+word: list = [item for item in graph_model.splitlines()[-1].split(":")
+              [1].strip()]
 
 # Which of the initial states will be the first according to the word
 
 
-def first_state(initial_states: list, transitions: list):
+def first_state(initial_states: list, transitions: list) -> State:
     for initial in initial_states:
         for transition in transitions:
-            if initial.name == transition.origin and word[0] == transition.symbol:
-                return transition
+            if initial.name == transition.origin.name and word[0] == transition.symbol:
+                return initial
 
 
-def next_state(current_state: Node, transitions: list):
+def next_transition(current_state: State, transitions: list) -> Transition:
     for transition in transitions:
-        if current_state == transition.origin and word[0] == transition.symbol
-        word.pop()
-        return
+        if current_state.name == transition.origin.name and word[0] == transition.symbol:
+            word.pop(0)
+            return transition
+        elif current_state.name == transition.origin.name and '/.' == transition.symbol:
+            return transition
 
-# def next_state(current_state: str, transitions: list):
-#     for transition in transitions:
-#         if current_state == transition.split(" ")[0] and word[0] == transition.split(" ")[1]:
-#             word.pop(0)
-#             return transition
-#     print('Automato não conseguiu ler a palavra')
-#     return exit(1)
+
+current_state = first_state(initial_states, transitions)
+transitions_to_consume_the_word: list = []
+word_len = len(word)
+while True:
+    if word_len == len(word):
+        current_state = next_transition(current_state, transitions)
+        transitions_to_consume_the_word.append(current_state)
+    elif len(word) != 0:
+        current_state = next_transition(current_state.destiny, transitions)
+        transitions_to_consume_the_word.append(current_state)
+    elif len(word) == 0:
+        for f in final_states:
+            if current_state.destiny.name == f.name:
+                break
+        break
+
+for t in transitions_to_consume_the_word:
+    print(f'{t.origin.name}: {t.symbol} -> {t.destiny.name}')
 
 # current_state = who_is_initial_state(initial_states, transitions)
 # states_to_consume_the_word: list = []

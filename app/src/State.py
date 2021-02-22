@@ -1,3 +1,3 @@
-class Node:
+class State:
     def __init__(self, name):
         self.name = name
