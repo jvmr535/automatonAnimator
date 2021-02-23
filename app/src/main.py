@@ -64,17 +64,36 @@ while True:
         break
 
 i = 0
-for t in transitions_to_consume_the_word:
-    graph = pydot.Dot('my_graph', graph_type='digraph')
-    # for item in initial_states:
-    #     graph.add_node(pydot.Node(item.name))
-    # for item in final_states:
-    #     graph.add_node(pydot.Node(item.name))
-    for item in transitions:
-        graph.add_node(pydot.Node(str(item.origin.name)))
-        graph.add_node(pydot.Node(str(item.destiny.name)))
-    for item in transitions:
-        print(f'{item.origin.name}, {item.destiny.name}, {item.symbol}')
+graph = pydot.Dot('my_graph', graph_type='digraph')
+for item in initial_states:
+    graph.add_node(pydot.Node(item.name, shape='circle', style='bold'))
+for item in final_states:
+    graph.add_node(pydot.Node(item.name, shape='doublecircle', style='bold'))
+for item in transitions:
+    graph.add_node(pydot.Node(item.origin.name, shape='circle', style='bold'))
+    graph.add_node(pydot.Node(item.destiny.name, shape='circle', style='bold'))
+    graph.add_edge(pydot.Edge(item.origin.name,
+                              item.destiny.name, label=item.symbol))
+
+for index, t in enumerate(transitions_to_consume_the_word):
+    if index == 0:
+        graph.add_node(pydot.Node(t.origin.name, color='blue', style='filled'))
+        graph.del_edge(t.origin.name, t.destiny.name)
+        graph.add_edge(pydot.Edge(str(t.origin.name),
+                                  str(t.destiny.name), label=str(t.symbol), color='blue'))
+    else:
+        graph.add_node(pydot.Node(
+            transitions_to_consume_the_word[index-1].origin.name, color='black', style='bold'))
+        graph.del_edge(transitions_to_consume_the_word[index-1].origin.name,
+                       transitions_to_consume_the_word[index-1].destiny.name)
+        graph.add_edge(pydot.Edge(str(transitions_to_consume_the_word[index-1].origin.name),
+                                  str(transitions_to_consume_the_word[index-1].destiny.name), label=str(transitions_to_consume_the_word[index-1].symbol)))
+
+        graph.add_node(pydot.Node(t.origin.name, color='blue', style='filled'))
+        graph.del_edge(t.origin.name, t.destiny.name)
+        graph.add_edge(pydot.Edge(str(t.origin.name),
+                                  str(t.destiny.name), label=str(t.symbol), color='blue'))
+
     graph.write_dot(f'app/assets/graph_imgs/output_graphviz{i}.dot')
     i = i + 1
     print(f'{t.origin.name}: {t.symbol} -> {t.destiny.name}')
