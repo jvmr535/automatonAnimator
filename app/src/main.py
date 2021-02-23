@@ -63,8 +63,23 @@ while True:
                 break
         break
 
+i = 0
 for t in transitions_to_consume_the_word:
+    graph = pydot.Dot('my_graph', graph_type='digraph')
+    # for item in initial_states:
+    #     graph.add_node(pydot.Node(item.name))
+    # for item in final_states:
+    #     graph.add_node(pydot.Node(item.name))
+    for item in transitions:
+        graph.add_node(pydot.Node(str(item.origin.name)))
+        graph.add_node(pydot.Node(str(item.destiny.name)))
+    for item in transitions:
+        print(f'{item.origin.name}, {item.destiny.name}, {item.symbol}')
+    graph.write_dot(f'app/assets/graph_imgs/output_graphviz{i}.dot')
+    i = i + 1
     print(f'{t.origin.name}: {t.symbol} -> {t.destiny.name}')
+    input()
+
 
 # current_state = who_is_initial_state(initial_states, transitions)
 # states_to_consume_the_word: list = []
