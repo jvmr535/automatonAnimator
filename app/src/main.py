@@ -99,7 +99,16 @@ for index, t in enumerate(transitions_to_consume_the_word):
     print(f'{t.origin.name}: {t.symbol} -> {t.destiny.name}')
     input()
 
-
+graph.add_node(pydot.Node(
+    transitions_to_consume_the_word[-1].origin.name, color='black', style='bold'))
+graph.del_edge(transitions_to_consume_the_word[-1].origin.name,
+               transitions_to_consume_the_word[-1].destiny.name)
+graph.add_edge(pydot.Edge(str(transitions_to_consume_the_word[-1].origin.name),
+                          str(transitions_to_consume_the_word[-1].destiny.name), label=str(transitions_to_consume_the_word[index-1].symbol)))
+graph.add_node(pydot.Node(
+    transitions_to_consume_the_word[-1].destiny.name, color='blue', style='filled'))
+graph.write_dot(f'app/assets/graph_imgs/output_graphviz{i}.dot')
+input()
 # current_state = who_is_initial_state(initial_states, transitions)
 # states_to_consume_the_word: list = []
 
