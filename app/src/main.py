@@ -5,177 +5,59 @@ from PIL import Image
 
 from State import State
 from Transition import Transition
+from Node import Node
+
 
 graph_model = open("app/assets/graphs/graph_notation.txt", "r").read()
 
 
 initial_and_final_states: list = [item.strip()
                                   for item in graph_model.splitlines()[0].split(";")]
-initial_states: list = [State(item)
-                        for item in initial_and_final_states[0].split(" ")]
-final_states: list = [State(item)
-                      for item in initial_and_final_states[1].split(" ")]
+initial_states: list = [
+    item for item in initial_and_final_states[0].split(" ")]
+
+final_states: list = [item for item in initial_and_final_states[1].split(" ")]
+
 transitions: list = [item for item in graph_model.splitlines()[1:]]
 del transitions[-1]
-
-transitions = [Transition(
-    State(item.split(" ")[0]),
-    State(item.split(" ")[3]),
-    item.split(" ")[1])
-    for item in transitions]
-
 
 word: list = [item for item in graph_model.splitlines()[-1].split(":")
               [1].strip()]
 
-# Which of the initial states will be the first according to the word
+current_state = initial_states[0]
 
 
-def first_state(initial_states: list, transitions: list) -> State:
-    for initial in initial_states:
-        for transition in transitions:
-            if initial.name == transition.origin.name and word[0] == transition.symbol:
-                return initial
+def available_transitions(symbol: str, transitions: list, current_state: str) -> list:
+    aux = []
+    for item in transitions:
+        if (item.split(" ")[1] == symbol or item.split(" ")[1] == "/.") and item.split(" ")[0] == current_state:
+            aux.append(item)
+    return aux
 
 
-def next_transition(current_state: State, transitions: list) -> Transition:
-    for transition in transitions:
-        if current_state.name == transition.origin.name and word[0] == transition.symbol:
-            word.pop(0)
-            return transition
-        elif current_state.name == transition.origin.name and '/.' == transition.symbol:
-            return transition
+def run_AF():
+    id_k = 0
+    height = 0
+    decision_tree = []
+
+    # Lendo o primeiro estado do automato
+    decision_tree.append(Node(id_k, current_state, height, None))
+    while word:
+        current_symbol = word.pop(0)
+        aux = []
+        for dt_item in decision_tree:
+            if dt_item.height == height:
+                children = [item.split(" ")[3] for item in available_transitions(
+                    current_symbol, transitions, dt_item.value)]
+                for c in children:
+                    id_k = id_k + 1
+                    node = Node(id_k, c, height+1, dt_item.id)
+                    aux.append(node)
+        for a in aux:
+            decision_tree.append(a)
+
+        height = height + 1
+    return decision_tree
 
 
-current_state = first_state(initial_states, transitions)
-transitions_to_consume_the_word: list = []
-word_len = len(word)
-while True:
-    if word_len == len(word):
-        current_state = next_transition(current_state, transitions)
-        transitions_to_consume_the_word.append(current_state)
-    elif len(word) != 0:
-        current_state = next_transition(current_state.destiny, transitions)
-        transitions_to_consume_the_word.append(current_state)
-    elif len(word) == 0:
-        for f in final_states:
-            if current_state.destiny.name == f.name:
-                break
-        break
-
-i = 0
-graph = pydot.Dot('my_graph', graph_type='digraph')
-for item in initial_states:
-    graph.add_node(pydot.Node(item.name, shape='circle', style='bold'))
-for item in final_states:
-    graph.add_node(pydot.Node(item.name, shape='doublecircle', style='bold'))
-for item in transitions:
-    graph.add_node(pydot.Node(item.origin.name, shape='circle', style='bold'))
-    graph.add_node(pydot.Node(item.destiny.name, shape='circle', style='bold'))
-    graph.add_edge(pydot.Edge(item.origin.name,
-                              item.destiny.name, label=item.symbol))
-
-for index, t in enumerate(transitions_to_consume_the_word):
-    if index == 0:
-        graph.add_node(pydot.Node(t.origin.name, color='blue', style='filled'))
-        graph.del_edge(t.origin.name, t.destiny.name)
-        graph.add_edge(pydot.Edge(str(t.origin.name),
-                                  str(t.destiny.name), label=str(t.symbol), color='blue'))
-    else:
-        graph.add_node(pydot.Node(
-            transitions_to_consume_the_word[index-1].origin.name, color='black', style='bold'))
-        graph.del_edge(transitions_to_consume_the_word[index-1].origin.name,
-                       transitions_to_consume_the_word[index-1].destiny.name)
-        graph.add_edge(pydot.Edge(str(transitions_to_consume_the_word[index-1].origin.name),
-                                  str(transitions_to_consume_the_word[index-1].destiny.name), label=str(transitions_to_consume_the_word[index-1].symbol)))
-
-        graph.add_node(pydot.Node(t.origin.name, color='blue', style='filled'))
-        graph.del_edge(t.origin.name, t.destiny.name)
-        graph.add_edge(pydot.Edge(str(t.origin.name),
-                                  str(t.destiny.name), label=str(t.symbol), color='blue'))
-
-    graph.write_dot(f'app/assets/graph_imgs/output_graphviz{i}.dot')
-    i = i + 1
-    print(f'{t.origin.name}: {t.symbol} -> {t.destiny.name}')
-    input()
-
-graph.add_node(pydot.Node(
-    transitions_to_consume_the_word[-1].origin.name, color='black', style='bold'))
-graph.del_edge(transitions_to_consume_the_word[-1].origin.name,
-               transitions_to_consume_the_word[-1].destiny.name)
-graph.add_edge(pydot.Edge(str(transitions_to_consume_the_word[-1].origin.name),
-                          str(transitions_to_consume_the_word[-1].destiny.name), label=str(transitions_to_consume_the_word[index-1].symbol)))
-graph.add_node(pydot.Node(
-    transitions_to_consume_the_word[-1].destiny.name, color='blue', style='filled'))
-graph.write_dot(f'app/assets/graph_imgs/output_graphviz{i}.dot')
-input()
-# current_state = who_is_initial_state(initial_states, transitions)
-# states_to_consume_the_word: list = []
-
-# while True:
-#     if len(word) != 0:
-#         current_state = next_state(current_state, transitions)
-#         states_to_consume_the_word.append(current_state)
-#     elif len(word) == 0 and current_state in final_states:
-#         break
-
-# word: list = [item for item in graph.splitlines()[-1].split(":")
-#               [1].strip()]
-
-# def build_animation():
-#     graph = pydot.Dot('my_graph', graph_type='digraph')
-
-#     graph.add_node(pydot.Node(f'Passo', shape='square',
-#                               label=f'Passo - \n Le: -'))
-#     graph.write_dot('output_graphviz.dot')
-
-#     for transition in transitions:
-#         graph.add_node(pydot.Node(str(transition.split(
-#             " ")[0]), style='bold', shape='circle', label=str(transition.split(" ")[0])))
-#         graph.add_node(pydot.Node(str(transition.split(
-#             " ")[3]), style='bold', shape='circle', label=str(transition.split(" ")[3])))
-#         graph.add_edge(pydot.Edge(transition.split(" ")[0], transition.split(" ")[
-#                        3], label=transition.split(" ")[1]))
-
-#     for initial in initial_states:
-#         graph.add_node(pydot.Node(str(initial)))
-#     for final in final_states:
-#         graph.add_node(pydot.Node(str(final), shape='doublecircle'))
-
-#     graph.write_png('app/assets/graph_imgs/output.jpg')
-
-#     for i in range(len(states_to_consume_the_word)):
-#         if i == 0:
-#             graph.add_node(pydot.Node(
-#                 str(states_to_consume_the_word[i]), style='filled', color="lightblue"))
-
-#             graph.add_node(pydot.Node(f'Passo', shape='square',
-#                                       label=f'Passo {i+1} \n Le: {word[i]}'))
-
-#             graph.write_png(f'app/assets/graph_imgs/output{i}.jpg')
-#             graph.write_dot(f'app/assets/graph_imgs/output_graphviz{i}.dot')
-#         else:
-#             graph.add_node(pydot.Node(
-#                 str(states_to_consume_the_word[i-1]), style="bold", color="black"))
-#             graph.add_node(pydot.Node(
-#                 str(states_to_consume_the_word[i]), style='filled', color="lightblue"))
-
-#             graph.add_node(pydot.Node(f'Passo', shape='square',
-#                                       label=f'Passo {i+1} \n Le: {word[i]}'))
-
-#             graph.write_png(f'app/assets/graph_imgs/output{i}.jpg')
-#             graph.write_dot(f'app/assets/graph_imgs/output_graphviz{i}.dot')
-
-#     frames = []
-
-#     imgs = glob.glob("app/assets/graph_imgs/*.jpg")
-#     for i in imgs:
-#         new_frame = Image.open(i)
-#         frames.append(new_frame)
-
-#     frames[0].save('app/assets/graph_imgs/automaton.gif', format='GIF',
-#                    append_images=frames[1:],
-#                    save_all=True,
-#                    duration=1500, loop=0)
-
-# build_animation()
+def build_path():
