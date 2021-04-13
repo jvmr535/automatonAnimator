@@ -8,7 +8,7 @@ from Transition import Transition
 from Node import Node
 
 
-graph_model = open("app/assets/graphs/graph_notation.txt", "r").read()
+graph_model = open("app/assets/graphs/exemplo_afn.txt", "r").read()
 
 
 initial_and_final_states: list = [item.strip()
@@ -35,29 +35,55 @@ def available_transitions(symbol: str, transitions: list, current_state: str) ->
     return aux
 
 
-def run_AF():
-    id_k = 0
-    height = 0
-    decision_tree = []
-
-    # Lendo o primeiro estado do automato
-    decision_tree.append(Node(id_k, current_state, height, None))
-    while word:
-        current_symbol = word.pop(0)
-        aux = []
-        for dt_item in decision_tree:
-            if dt_item.height == height:
-                children = [item.split(" ")[3] for item in available_transitions(
-                    current_symbol, transitions, dt_item.value)]
-                for c in children:
-                    id_k = id_k + 1
-                    node = Node(id_k, c, height+1, dt_item.id)
-                    aux.append(node)
-        for a in aux:
-            decision_tree.append(a)
-
-        height = height + 1
-    return decision_tree
+def is_able_to_consume():
+    transitions_symbols = [item.split(" ")[1] for item in transitions]
+    for w in word:
+        if w not in transitions_symbols:
+            return False
+    return True
 
 
-def build_path():
+def run_FA():
+    if is_able_to_consume():
+        id_k = 0
+        decision_tree = []
+        height = 0
+
+        # Lendo o primeiro estado do automato
+        decision_tree.append(Node(id_k, current_state, height, None))
+        while word:
+            current_symbol = word.pop(0)
+            aux = []
+            for dt_item in decision_tree:
+                if dt_item.height == height:
+                    children = [item.split(" ")[3] for item in available_transitions(
+                        current_symbol, transitions, dt_item.value)]
+                    for c in children:
+                        id_k = id_k + 1
+                        node = Node(id_k, c, height+1, dt_item.id)
+                        aux.append(node)
+            for a in aux:
+                decision_tree.append(a)
+
+            height = height + 1
+        return decision_tree
+    else:
+        print('O automato não pode ser consumido')
+
+
+decision_tree = run_FA()
+
+if decision_tree:
+    for item in decision_tree:
+        print(item.__str__())
+
+
+# def build_path():
+#     while True:
+
+        # def tree_height():
+        #     tree_height = 0
+        #     for item in decision_tree:
+        #         if tree_height < item.height:
+        #             tree_height = item.height
+        #     return tree_height
