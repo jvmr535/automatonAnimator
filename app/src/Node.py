@@ -1,5 +1,5 @@
 class Node:
-    def __init__(self, id, value, height, parent_key):
+    def __init__(self, id: str, value: str, height: str, parent_key: str):
         self.id = id
         self.value = value
         self.height = height

@@ -8,7 +8,7 @@ from Transition import Transition
 from Node import Node
 
 
-graph_model = open("app/assets/graphs/exemplo_afn.txt", "r").read()
+graph_model = open("app/assets/graphs/exemplo_afd.txt", "r").read()
 
 
 initial_and_final_states: list = [item.strip()
@@ -73,17 +73,52 @@ def run_FA():
 
 decision_tree = run_FA()
 
-if decision_tree:
+
+def tree_height():
+    tree_height = 0
     for item in decision_tree:
-        print(item.__str__())
+        if tree_height < item.height:
+            tree_height = item.height
+    return tree_height
 
 
-# def build_path():
-#     while True:
+def leafts_final_state():
+    th = tree_height()
+    aux = []
+    for item in decision_tree:
+        if item.height == th and item.value in final_states:
+            aux.append(item)
+    return aux
 
-        # def tree_height():
-        #     tree_height = 0
-        #     for item in decision_tree:
-        #         if tree_height < item.height:
-        #             tree_height = item.height
-        #     return tree_height
+
+lfs = leafts_final_state()
+
+
+def find_in_tree(id):
+    for item in decision_tree:
+        if item.id == id:
+            return item
+
+# Construir os caminhos
+
+
+def build_path(node: Node):
+    aux = []
+    current_node = node
+    aux.append(current_node)
+    while current_node.parent_key != None:
+        current_node = find_in_tree(current_node.parent_key)
+        aux.append(current_node)
+    return aux
+
+
+def list_paths():
+    paths = []
+    for item in lfs:
+        paths.append(build_path(item))
+    return paths
+
+
+teste = list_paths()
+
+print(teste)
