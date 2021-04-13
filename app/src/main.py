@@ -10,22 +10,7 @@ from State import State
 from Transition import Transition
 from Node import Node
 
-
-graph_model = open("app/assets/graphs/exemplo_afn.txt", "r").read()
-
-
-initial_and_final_states: list = [item.strip()
-                                  for item in graph_model.splitlines()[0].split(";")]
-initial_states: list = [
-    item for item in initial_and_final_states[0].split(" ")]
-
-final_states: list = [item for item in initial_and_final_states[1].split(" ")]
-
-transitions: list = [item for item in graph_model.splitlines()[1:]]
-del transitions[-1]
-
-word: list = [item for item in graph_model.splitlines()[-1].split(":")
-              [1].strip()]
+from file_manege import final_states, graph_model, initial_and_final_states, initial_states, word, transitions
 
 current_state = initial_states[0]
 
@@ -33,16 +18,18 @@ current_state = initial_states[0]
 def available_transitions(symbol: str, transitions: list, current_state: str) -> list:
     aux = []
     for item in transitions:
-        if item.split(" ")[1] and item.split(" ")[0] == current_state:
+        if item.split(" ")[1] == symbol and item.split(" ")[0] == current_state:
             aux.append(item)
     return aux
 
 
 def is_able_to_consume():
     transitions_symbols = [item.split(" ")[1] for item in transitions]
+
     for w in word:
         if w not in transitions_symbols:
             return False
+
     return True
 
 
@@ -75,6 +62,8 @@ def run_FA():
 
 
 decision_tree = run_FA()
+for dt in decision_tree:
+    print(dt.__str__())
 
 
 def tree_height():
@@ -95,14 +84,14 @@ def leafts_final_state():
 
 
 lfs = leafts_final_state()
+for item in lfs:
+    print(item.__str__())
 
 
 def find_in_tree(id):
     for item in decision_tree:
         if item.id == id:
             return item
-
-# Construir os caminhos
 
 
 def build_path(node: Node):
