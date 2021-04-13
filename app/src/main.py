@@ -1,4 +1,7 @@
 import glob
+import os
+import tempfile
+import shutil
 
 import pydot
 from PIL import Image
@@ -8,7 +11,7 @@ from Transition import Transition
 from Node import Node
 
 
-graph_model = open("app/assets/graphs/exemplo_afd.txt", "r").read()
+graph_model = open("app/assets/graphs/exemplo_afn.txt", "r").read()
 
 
 initial_and_final_states: list = [item.strip()
@@ -151,6 +154,7 @@ possibilities = possible_transitions()
 
 
 def build_animation(possibility: list, prefix_number: str):
+    temp_dir = tempfile.mkdtemp(prefix='graph', suffix='images')
     graph = pydot.Dot('my_graph', graph_type='digraph')
     for transition in transitions:
         graph.add_node(pydot.Node(str(transition.split(
@@ -166,15 +170,15 @@ def build_animation(possibility: list, prefix_number: str):
         graph.add_node(pydot.Node(str(final), shape='doublecircle'))
 
     image_index = 0
-    graph.write_png(f'app/assets/graph_imgs/output_{image_index}.jpg')
+    graph.write_png(f'{temp_dir}/output_{image_index}.jpg')
 
     i = 0
     for index, t in enumerate(possibility):
         if index == 0:
             graph.add_node(pydot.Node(
-                possibility[index].origin.name, color='blue', style='circle'))
+                possibility[index].origin.name, color='green', style='circle'))
             image_index = image_index + 1
-            graph.write_png(f'app/assets/graph_imgs/output_{image_index}.jpg')
+            graph.write_png(f'{temp_dir}/output_{image_index}.jpg')
             graph.del_edge(possibility[index].origin.name,
                            possibility[index].destiny.name)
 
@@ -184,7 +188,7 @@ def build_animation(possibility: list, prefix_number: str):
                                       str(possibility[index].destiny.name), label=str(t.symbol), color='blue'))
             image_index = image_index + 1
             graph.write_png(
-                f'app/assets/graph_imgs/output_{image_index}.jpg')
+                f'{temp_dir}/output_{image_index}.jpg')
 
             index = index + 1
         else:
@@ -192,9 +196,9 @@ def build_animation(possibility: list, prefix_number: str):
                 possibility[index-1].origin.name, color='black', style='circle'))
 
             graph.add_node(pydot.Node(
-                possibility[index].origin.name, color='blue', style='circle'))
+                possibility[index].origin.name, color='green', style='circle'))
             image_index = image_index + 1
-            graph.write_png(f'app/assets/graph_imgs/output_{image_index}.jpg')
+            graph.write_png(f'{temp_dir}/output_{image_index}.jpg')
 
             graph.del_edge(
                 str(possibility[index].origin.name), str(possibility[index].destiny.name))
@@ -203,20 +207,31 @@ def build_animation(possibility: list, prefix_number: str):
                                       str(possibility[index].destiny.name), label=str(t.symbol), color='blue'))
             image_index = image_index + 1
             graph.write_png(
-                f'app/assets/graph_imgs/output_{image_index}.jpg')
+                f'{temp_dir}/output_{image_index}.jpg')
             index = index + 1
 
     graph.add_node(pydot.Node(
         possibility[-1].origin.name, color='black', style='circle'))
 
     graph.add_node(pydot.Node(
-        possibility[-1].destiny.name, color='blue', style='circle'))
+        possibility[-1].destiny.name, color='green', style='circle'))
     image_index = image_index + 1
-    graph.write_png(f'app/assets/graph_imgs/output_{image_index}.jpg')
+    graph.write_png(f'{temp_dir}/output_{image_index}.jpg')
 
     image_index = image_index + 1
-    graph.write_png(
-        f'app/assets/graph_imgs/output_{image_index}.jpg')
+
+    frames = []
+
+    imgs = glob.glob(f'{temp_dir}/output*.jpg')
+
+    for i in imgs:
+        new_frame = Image.open(i)
+        frames.append(new_frame)
+
+    frames[0].save(f'app/assets/gifs/automaton{prefix_number}.gif', format='GIF',
+                   append_images=frames[1:],
+                   save_all=True,
+                   duration=1500, loop=0)
 
 
 build_animation(possibilities[0], "1")
