@@ -174,6 +174,7 @@ def build_animation(possibility: list, prefix_number: str):
 
     i = 0
     for index, t in enumerate(possibility):
+
         if index == 0:
             graph.add_node(pydot.Node(
                 possibility[index].origin.name, color='green', style='circle'))
@@ -234,4 +235,11 @@ def build_animation(possibility: list, prefix_number: str):
                    duration=1500, loop=0)
 
 
-build_animation(possibilities[0], "1")
+def build_all_animations():
+    index = 0
+    for p in possibilities:
+        build_animation(p, index)
+        index = index + 1
+
+
+build_all_animations()
