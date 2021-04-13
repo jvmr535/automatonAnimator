@@ -145,3 +145,78 @@ def possible_transitions():
     for item in paths:
         aux.append(states_to_consume_word(item))
     return aux
+
+
+possibilities = possible_transitions()
+
+
+def build_animation(possibility: list, prefix_number: str):
+    graph = pydot.Dot('my_graph', graph_type='digraph')
+    for transition in transitions:
+        graph.add_node(pydot.Node(str(transition.split(
+            " ")[0]), shape='circle', label=str(transition.split(" ")[0])))
+        graph.add_node(pydot.Node(str(transition.split(
+            " ")[3]), shape='circle', label=str(transition.split(" ")[3])))
+        graph.add_edge(pydot.Edge(transition.split(" ")[0], transition.split(" ")[
+                       3], label=transition.split(" ")[1]))
+
+    for initial in initial_states:
+        graph.add_node(pydot.Node(str(initial), shape='circle'))
+    for final in final_states:
+        graph.add_node(pydot.Node(str(final), shape='doublecircle'))
+
+    image_index = 0
+    graph.write_png(f'app/assets/graph_imgs/output_{image_index}.jpg')
+
+    i = 0
+    for index, t in enumerate(possibility):
+        if index == 0:
+            graph.add_node(pydot.Node(
+                possibility[index].origin.name, color='blue', style='circle'))
+            image_index = image_index + 1
+            graph.write_png(f'app/assets/graph_imgs/output_{image_index}.jpg')
+            graph.del_edge(possibility[index].origin.name,
+                           possibility[index].destiny.name)
+
+            graph.add_node(pydot.Node(
+                possibility[index].origin.name, color='black', style='circle'))
+            graph.add_edge(pydot.Edge(str(possibility[index].origin.name),
+                                      str(possibility[index].destiny.name), label=str(t.symbol), color='blue'))
+            image_index = image_index + 1
+            graph.write_png(
+                f'app/assets/graph_imgs/output_{image_index}.jpg')
+
+            index = index + 1
+        else:
+            graph.add_node(pydot.Node(
+                possibility[index-1].origin.name, color='black', style='circle'))
+
+            graph.add_node(pydot.Node(
+                possibility[index].origin.name, color='blue', style='circle'))
+            image_index = image_index + 1
+            graph.write_png(f'app/assets/graph_imgs/output_{image_index}.jpg')
+
+            graph.del_edge(
+                str(possibility[index].origin.name), str(possibility[index].destiny.name))
+
+            graph.add_edge(pydot.Edge(str(possibility[index].origin.name),
+                                      str(possibility[index].destiny.name), label=str(t.symbol), color='blue'))
+            image_index = image_index + 1
+            graph.write_png(
+                f'app/assets/graph_imgs/output_{image_index}.jpg')
+            index = index + 1
+
+    graph.add_node(pydot.Node(
+        possibility[-1].origin.name, color='black', style='circle'))
+
+    graph.add_node(pydot.Node(
+        possibility[-1].destiny.name, color='blue', style='circle'))
+    image_index = image_index + 1
+    graph.write_png(f'app/assets/graph_imgs/output_{image_index}.jpg')
+
+    image_index = image_index + 1
+    graph.write_png(
+        f'app/assets/graph_imgs/output_{image_index}.jpg')
+
+
+build_animation(possibilities[0], "1")
