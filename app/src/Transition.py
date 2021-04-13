@@ -6,3 +6,6 @@ class Transition:
         self.origin = origin
         self.destiny = destiny
         self.symbol = symbol
+
+    def __str__(self):
+        return f'{self.origin} : {self.symbol} -> {self.destiny}'

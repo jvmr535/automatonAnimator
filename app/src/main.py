@@ -30,7 +30,7 @@ current_state = initial_states[0]
 def available_transitions(symbol: str, transitions: list, current_state: str) -> list:
     aux = []
     for item in transitions:
-        if (item.split(" ")[1] == symbol or item.split(" ")[1] == "/.") and item.split(" ")[0] == current_state:
+        if item.split(" ")[1] and item.split(" ")[0] == current_state:
             aux.append(item)
     return aux
 
@@ -106,8 +106,8 @@ def build_path(node: Node):
     aux = []
     current_node = node
     aux.append(current_node)
-    while current_node.parent_key != None:
-        current_node = find_in_tree(current_node.parent_key)
+    while current_node.parent_id != None:
+        current_node = find_in_tree(current_node.parent_id)
         aux.append(current_node)
     return aux
 
@@ -119,6 +119,29 @@ def list_paths():
     return paths
 
 
-teste = list_paths()
+paths = list_paths()
 
-print(teste)
+
+def states_to_consume_word(path):
+    states = []
+    transitions = []
+    word: list = [item for item in graph_model.splitlines()[-1].split(":")
+                  [1].strip()]
+    for state in path:
+        aux = State(state.value)
+        states.append(aux)
+    while states:
+        try:
+            aux = Transition(states[-1], states[-2], word.pop(0))
+            states.pop()
+            transitions.append(aux)
+        except:
+            break
+    return transitions
+
+
+def possible_transitions():
+    aux = []
+    for item in paths:
+        aux.append(states_to_consume_word(item))
+    return aux
