@@ -1,4 +1,5 @@
-graph_model = open("app/assets/graphs/exemplo_afd.txt", "r").read()
+import os 
+graph_model = open(os.path.join(os.path.dirname(__file__),"../../app/assets/graphs/exemplo_afd.txt"), "r").read()
 
 
 initial_and_final_states: list = [item.strip()

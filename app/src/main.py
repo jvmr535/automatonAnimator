@@ -140,6 +140,7 @@ possibilities = possible_transitions()
 
 def build_animation(possibility: list, prefix_number: str):
     temp_dir = tempfile.mkdtemp(prefix='graph', suffix='images')
+    print(temp_dir)
     graph = pydot.Dot('my_graph', graph_type='digraph')
     for transition in transitions:
         graph.add_node(pydot.Node(str(transition.split(
@@ -156,7 +157,9 @@ def build_animation(possibility: list, prefix_number: str):
 
     image_index = 0
     graph.set_graph_defaults(label="Gif")
-    graph.write_png(f'{temp_dir}/output_{image_index}.jpg')
+    image_path = f'{temp_dir}/output_{image_index}.jpg'
+    print(image_path)
+    graph.write_png(image_path)
 
     i = 0
     for index, t in enumerate(possibility):
@@ -212,13 +215,13 @@ def build_animation(possibility: list, prefix_number: str):
 
     frames = []
 
-    imgs = glob.glob(f'{temp_dir}/output*.jpg')
+    imgs = sorted(glob.glob(f'{temp_dir}/output*.jpg'))
 
     for i in imgs:
         new_frame = Image.open(i)
         frames.append(new_frame)
 
-    frames[0].save(f'app/assets/gifs/automaton{prefix_number}.gif', format='GIF',
+    frames[0].save(os.path.join(os.path.dirname(__file__),f'../../app/assets/gifs/automaton{prefix_number}.gif'), format='GIF',
                    append_images=frames[1:],
                    save_all=True,
                    duration=1500, loop=0)
