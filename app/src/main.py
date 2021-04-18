@@ -62,8 +62,6 @@ def run_FA():
 
 
 decision_tree = run_FA()
-for dt in decision_tree:
-    print(dt.__str__())
 
 
 def tree_height():
@@ -84,8 +82,6 @@ def leafts_final_state():
 
 
 lfs = leafts_final_state()
-for item in lfs:
-    print(item.__str__())
 
 
 def find_in_tree(id):
@@ -159,15 +155,16 @@ def build_animation(possibility: list, prefix_number: str):
         graph.add_node(pydot.Node(str(final), shape='doublecircle'))
 
     image_index = 0
+    graph.set_graph_defaults(label="Gif")
     graph.write_png(f'{temp_dir}/output_{image_index}.jpg')
 
     i = 0
     for index, t in enumerate(possibility):
-
         if index == 0:
             graph.add_node(pydot.Node(
                 possibility[index].origin.name, color='green', style='circle'))
             image_index = image_index + 1
+            graph.set_graph_defaults(label=t.__str__())
             graph.write_png(f'{temp_dir}/output_{image_index}.jpg')
             graph.del_edge(possibility[index].origin.name,
                            possibility[index].destiny.name)
@@ -188,6 +185,7 @@ def build_animation(possibility: list, prefix_number: str):
             graph.add_node(pydot.Node(
                 possibility[index].origin.name, color='green', style='circle'))
             image_index = image_index + 1
+            graph.set_graph_defaults(label=t.__str__())
             graph.write_png(f'{temp_dir}/output_{image_index}.jpg')
 
             graph.del_edge(
@@ -206,6 +204,8 @@ def build_animation(possibility: list, prefix_number: str):
     graph.add_node(pydot.Node(
         possibility[-1].destiny.name, color='green', style='circle'))
     image_index = image_index + 1
+    graph.set_graph_defaults(label=t.__str__())
+
     graph.write_png(f'{temp_dir}/output_{image_index}.jpg')
 
     image_index = image_index + 1
