@@ -140,7 +140,6 @@ possibilities = possible_transitions()
 
 def build_animation(possibility: list, prefix_number: str):
     temp_dir = tempfile.mkdtemp(prefix='graph', suffix='images')
-    print(temp_dir)
     graph = pydot.Dot('my_graph', graph_type='digraph')
     for transition in transitions:
         graph.add_node(pydot.Node(str(transition.split(
@@ -158,7 +157,6 @@ def build_animation(possibility: list, prefix_number: str):
     image_index = 0
     graph.set_graph_defaults(label="Gif")
     image_path = f'{temp_dir}/output_{image_index}.jpg'
-    print(image_path)
     graph.write_png(image_path)
 
     i = 0
